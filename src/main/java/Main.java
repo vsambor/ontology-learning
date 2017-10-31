@@ -1,5 +1,6 @@
 import com.hp.hpl.jena.query.*;
 import com.hp.hpl.jena.rdf.model.*;
+import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 
@@ -8,6 +9,14 @@ public class Main {
   public static final String ENDPOINT = "http://dblp.l3s.de/d2r/sparql"; //"http://dbpedia.org/sparql";
 
   public static void main(String[] args) {
+
+    // Disable jena logger.
+    Logger.getRootLogger().setLevel(org.apache.log4j.Level.OFF);
+
+    System.out.println("################ ENDPOINT ################");
+    System.out.println(ENDPOINT);
+    System.out.println("##########################################\n");
+
     // Initialize needed variables.
     ArrayList<Double> p1Arr = new ArrayList<Double>();
     ArrayList<Double> p2Arr = new ArrayList<Double>();
@@ -30,7 +39,9 @@ public class Main {
       m = ((Literal) result2.next().get("m")).getInt();
 
       // Loops through all classes which are different than current one and executes a count query for each.
-      for (int j = i + 1; j < classes.size(); ++j) {
+      for (int j = 0; j < classes.size(); ++j) {
+        if (i == j) continue;
+
         String d = classes.get(j);
 
         String strQuery3 = "SELECT (count(DISTINCT ?x) AS ?s) WHERE { ?x a <" + c + "> . ?x a <" + d + "> }";
@@ -38,7 +49,7 @@ public class Main {
 
         s = ((Literal) result3.next().get("s")).getInt();
 
-        System.out.println(c + " ---> " + d);
+        System.out.println("\n" + c + " ---> " + d);
 
         // First Formula
         double res1 = waldScore(s, m);
@@ -58,7 +69,7 @@ public class Main {
       }
     }
 
-    System.out.println("p1Arr = " + p1Arr.toString());
+    System.out.println("\np1Arr = " + p1Arr.toString());
     System.out.println("p2Arr = " + p2Arr.toString());
   }
 
