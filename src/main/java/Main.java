@@ -6,22 +6,22 @@ import java.util.ArrayList;
 public class Main {
 
   public static final String ENDPOINT = "http://dblp.l3s.de/d2r/sparql"; //"http://dbpedia.org/sparql";
-  public static final int QUERY_LIMIT = 200;
+  public static final int QUERY_LIMIT = 50;
 
   public static void main(String[] args) {
-
-    Model model = ModelFactory.createDefaultModel();
-
-    String strQuery1 = "SELECT DISTINCT ?class WHERE { ?_ a ?class }";
-    ResultSet result1 = getResult(strQuery1);
-
-    // Initialization
-    int m = 0;
-    int s = 0;
+    // Initialize needed variables.
     ArrayList<Double> p1Arr = new ArrayList<Double>();
     ArrayList<Double> p2Arr = new ArrayList<Double>();
+    Model model = ModelFactory.createDefaultModel();
+    int m = 0;
+    int s = 0;
 
+    // First query which gets all classes.
+    String strQuery1 = "SELECT DISTINCT ?class WHERE { ?_ a ?class }";
+    ResultSet result1 = getResult(strQuery1);
     ArrayList<String> classes = getAllClasses(result1);
+
+    // Loops through all classes and perform a count query for each.
     for (int i = 0; i < classes.size(); ++i) {
       String c = classes.get(i);
 
@@ -30,12 +30,13 @@ public class Main {
 
       m = ((Literal) result2.next().get("m")).getInt();
 
-      ArrayList<String> diffClasses = getDiffClasses(classes, i + 1);
+      // Loops through all classes which are different than current one and executes a count query for each.
+      for (int j = i + 1; j < classes.size(); ++j) {
+        String d = classes.get(j);
 
-      for (int j = 0; j < diffClasses.size(); ++j) {
-        String d = diffClasses.get(j);
         String strQuery3 = "SELECT (count(DISTINCT ?x) AS ?s) WHERE { ?x a <" + c + "> . ?x a <" + d + "> }";
         ResultSet result3 = getResult(strQuery3);
+
         s = ((Literal) result3.next().get("s")).getInt();
 
         System.out.println(c + " ---> " + d);
@@ -108,16 +109,5 @@ public class Main {
       classes.add(res.next().get("class").toString());
     }
     return classes;
-  }
-
-  /**
-   * Returns sub array list with classes from a specific index to the end.
-   *
-   * @param classes - array list with all the classes.
-   * @param startIndex - the index from where to
-   * @return - an sub array list.
-   */
-  public static ArrayList<String> getDiffClasses(ArrayList<String> classes, int startIndex) {
-    return new ArrayList<String>(classes.subList(startIndex, classes.size()));
   }
 }
