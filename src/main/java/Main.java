@@ -6,7 +6,6 @@ import java.util.ArrayList;
 public class Main {
 
   public static final String ENDPOINT = "http://dblp.l3s.de/d2r/sparql"; //"http://dbpedia.org/sparql";
-  public static final int QUERY_LIMIT = 50;
 
   public static void main(String[] args) {
     // Initialize needed variables.
@@ -93,7 +92,7 @@ public class Main {
    * @return - a resultSet with query results.
    */
   public static ResultSet getResult(String queryString) {
-    Query query = QueryFactory.create(queryString + " LIMIT " + QUERY_LIMIT);
+    Query query = QueryFactory.create(queryString);
     return QueryExecutionFactory.sparqlService(ENDPOINT, query).execSelect();
   }
 
